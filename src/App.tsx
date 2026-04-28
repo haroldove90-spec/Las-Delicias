@@ -360,126 +360,110 @@ export default function App() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full pb-20 md:pb-0"
+                className="flex flex-col lg:flex-row gap-4 h-[calc(100vh-theme(spacing.24)-theme(spacing.20))] lg:h-[calc(100vh-12rem)] overflow-hidden"
               >
-                <div className="lg:col-span-2 space-y-8 overflow-y-auto pr-2 custom-scrollbar">
-                  <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                      <h2 className="text-4xl font-black text-slate-800 tracking-tighter">POS Directo</h2>
-                      <p className="text-slate-500 font-medium">Botonera rápida para venta en mostrador</p>
-                    </div>
-                    <div className="flex bg-white p-1.5 rounded-2xl border border-amber-100 shadow-sm w-full sm:w-auto">
-                      <button className="flex-1 sm:flex-none px-6 py-2.5 bg-amber-500 text-white rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-amber-500/20">Todo</button>
-                      <button className="flex-1 sm:flex-none px-6 py-2.5 text-slate-400 font-black text-sm uppercase tracking-widest hover:text-slate-600">Preparadas</button>
+                {/* Column 1: Navigation of categories (Small) */}
+                <div className="hidden lg:flex flex-col w-32 bg-white rounded-3xl border border-amber-100 p-3 space-y-3 shadow-sm">
+                  <h3 className="text-[10px] font-black uppercase text-slate-400 text-center tracking-widest mb-1">Categorías</h3>
+                  <button className="w-full flex flex-col items-center gap-1 p-3 rounded-2xl bg-amber-500 text-white font-black text-[10px] uppercase tracking-tighter shadow-lg shadow-amber-500/20">
+                    <Droplets size={20} />
+                    Todo
+                  </button>
+                  <button className="w-full flex flex-col items-center gap-1 p-3 rounded-2xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 font-black text-[10px] uppercase tracking-tighter transition-all">
+                    <ShoppingBag size={20} />
+                    Venta
+                  </button>
+                  <button className="w-full flex flex-col items-center gap-1 p-3 rounded-2xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 font-black text-[10px] uppercase tracking-tighter transition-all">
+                    <History size={20} />
+                    Recent
+                  </button>
+                </div>
+
+                {/* Column 2: Product Grid (Compact) */}
+                <div className="flex-1 flex flex-col min-w-0 bg-white rounded-3xl border border-amber-100 shadow-sm overflow-hidden p-4">
+                  <header className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-black text-slate-800 tracking-tighter uppercase italic">Productos</h2>
+                    <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
+                      <button className="px-4 py-1.5 bg-white shadow-sm text-amber-600 rounded-lg font-black text-[10px] uppercase tracking-widest border border-amber-100">Preparadas</button>
+                      <button className="px-4 py-1.5 text-slate-400 font-black text-[10px] uppercase tracking-widest">Insumos</button>
                     </div>
                   </header>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 overflow-y-auto pr-1 custom-scrollbar">
                     {PRODUCTS.map(product => (
                       <motion.button
-                        whileTap={{ scale: 0.95 }}
+                        whileTap={{ scale: 0.98 }}
                         key={product.id}
                         onClick={() => addToCart(product)}
-                        className="group bg-white p-6 rounded-[40px] border-2 border-transparent hover:border-amber-400 hover:shadow-[0_20px_40px_rgba(251,191,36,0.15)] transition-all text-left relative overflow-hidden flex flex-col min-h-[160px] md:min-h-[220px]"
+                        className="group bg-slate-50 p-3 rounded-2xl border border-transparent hover:border-amber-400 hover:bg-white hover:shadow-lg transition-all text-left relative flex flex-col"
                       >
-                        <div className="w-20 h-20 bg-amber-50 rounded-3xl mb-4 flex items-center justify-center text-5xl group-hover:rotate-12 transition-transform duration-300">
+                        <div className="w-12 h-12 bg-white rounded-xl mb-2 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-sm">
                           {product.name.includes('Tamarindo') ? '🍊' : product.name.includes('Fresa') ? '🍓' : product.name.includes('Menta') ? '🌿' : '🥤'}
                         </div>
-                        <div className="space-y-1">
-                          <span className={`text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-[0.15em] mb-3 inline-block ${
-                            product.category === 'CONCENTRADO' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
-                          }`}>
-                            {product.category}
-                          </span>
-                          <h3 className="font-black text-slate-800 text-xl leading-none mb-2 md:mb-4">{product.name}</h3>
-                          <p className="text-amber-600 font-black text-3xl mt-auto">${product.price}</p>
+                        <div className="space-y-0.5">
+                          <h3 className="font-black text-slate-800 text-xs truncate leading-tight">{product.name}</h3>
+                          <p className="text-amber-600 font-black text-sm">${product.price}</p>
                         </div>
-                        <div className="absolute bottom-6 right-6 p-4 bg-amber-100 text-amber-600 rounded-2xl opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg shadow-amber-500/10">
-                          <Plus size={28} strokeWidth={3} />
+                        <div className="absolute top-2 right-2 p-1.5 bg-amber-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Plus size={14} strokeWidth={3} />
                         </div>
                       </motion.button>
                     ))}
                   </div>
 
-                  <section className="mt-12 bg-white rounded-[40px] border border-amber-100 p-8 shadow-sm">
-                    <div className="flex items-center gap-4 mb-8">
-                       <div className="p-3 bg-red-100 text-red-600 rounded-2xl">
-                         <Trash2 size={24} />
-                       </div>
-                       <div>
-                         <h3 className="font-black text-2xl text-slate-800 tracking-tight">Registro de Mermas</h3>
-                         <p className="text-slate-400 text-sm font-medium">Control de desperdicios en estación</p>
-                       </div>
+                  {/* Waste registration area integrated small */}
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-black text-[10px] text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <AlertCircle size={12} /> Últimas Mermas
+                      </h3>
+                      <button className="text-[10px] font-black text-red-500 uppercase hover:underline">+ Registrar</button>
                     </div>
-                    <div className="space-y-4">
+                    <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
                       {wastage.map(w => (
-                        <div key={w.id} className="flex items-center justify-between p-5 bg-slate-50 rounded-3xl border border-slate-100 hover:border-red-200 transition-colors">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-red-400 font-black border border-red-50 text-sm shadow-sm">
-                              {w.id}
-                            </div>
-                            <div>
-                               <p className="font-black text-slate-800 text-lg">{w.itemName}</p>
-                               <p className="text-xs text-slate-400 font-bold italic uppercase tracking-widest">Motivo: {w.reason}</p>
-                            </div>
+                        <div key={w.id} className="flex-shrink-0 flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-100 min-w-[140px]">
+                          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-red-400 text-[10px] font-black border border-red-50">
+                            {w.id}
                           </div>
-                          <div className="text-right">
-                             <p className="font-black text-red-600 text-xl">{w.quantity}</p>
-                             <p className="text-[10px] text-slate-300 font-black uppercase tracking-widest">{w.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                          <div>
+                            <p className="font-black text-slate-800 text-[10px] truncate w-20">{w.itemName}</p>
+                            <p className="text-[8px] text-red-500 font-black">{w.quantity}</p>
                           </div>
                         </div>
                       ))}
-                      <button className="w-full py-6 border-4 border-dashed border-slate-100 rounded-[32px] text-slate-300 font-black uppercase tracking-[0.2em] hover:border-red-200 hover:text-red-400 transition-all flex items-center justify-center gap-4 group">
-                         <Plus size={24} className="group-hover:scale-125 transition-transform" /> Registrar Merma Seleccionada
-                      </button>
                     </div>
-                  </section>
+                  </div>
                 </div>
 
-                {/* Cart Summary - Desktop View */}
-                <div className="hidden lg:flex flex-col bg-white rounded-[40px] border border-amber-100 shadow-2xl shadow-amber-900/5 overflow-hidden h-full">
-                  <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-amber-50/30">
+                {/* Column 3: Cart/Ticket Summary (Fixed Sidebar) */}
+                <div className="hidden lg:flex flex-col w-80 bg-white rounded-3xl border border-amber-100 shadow-xl overflow-hidden">
+                  <div className="p-4 border-b border-amber-50 bg-amber-50/20 flex justify-between items-center">
                     <div>
-                      <h3 className="font-black text-2xl tracking-tighter">Canasta</h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Caja Activa</p>
-                      </div>
+                      <h3 className="font-black text-lg tracking-tight">Venta Actual</h3>
+                      <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-1">
+                        <Clock size={10} /> Online
+                      </p>
                     </div>
-                    <ShoppingBag className="text-amber-600" size={32} />
+                    <ShoppingBag className="text-amber-500" size={20} />
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                     {cart.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-slate-200 space-y-8 p-10">
-                        <div className="w-48 h-48 bg-slate-50 rounded-full flex items-center justify-center">
-                          <ShoppingBag size={100} strokeWidth={1} />
-                        </div>
-                        <div className="text-center">
-                          <p className="font-black text-slate-400 uppercase tracking-[0.2em] text-xl">Sin Pedidos</p>
-                          <p className="text-xs text-slate-300 font-bold mt-2">La canasta está esperando por delicias</p>
-                        </div>
+                      <div className="h-full flex flex-col items-center justify-center text-slate-100 space-y-4">
+                        <ShoppingBag size={48} strokeWidth={1} />
+                        <p className="font-black text-slate-300 uppercase tracking-widest text-xs">Vaca</p>
                       </div>
                     ) : (
                       cart.map(item => (
-                        <motion.div 
-                          layout
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          key={item.id} 
-                          className="flex justify-between items-start group relative border-b border-slate-50 pb-6 last:border-0"
-                        >
-                          <div className="flex-1">
-                            <h4 className="font-black text-xl text-slate-800 leading-tight">{item.product.name}</h4>
-                            <p className="text-xs text-slate-400 mt-2 font-black uppercase tracking-widest">${item.product.price} x {item.quantity}</p>
+                        <motion.div layout key={item.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                          <div className="flex-1 min-w-0 pr-2">
+                            <h4 className="font-black text-[11px] text-slate-800 leading-none truncate">{item.product.name}</h4>
+                            <p className="text-[9px] text-slate-400 font-black mt-1 uppercase tracking-tight">${item.product.price} x {item.quantity}</p>
                           </div>
-                          <div className="flex flex-col items-end gap-3">
-                            <span className="font-black text-2xl text-amber-600">${item.product.price * item.quantity}</span>
-                            <button 
-                              onClick={() => removeFromCart(item.id)}
-                              className="w-10 h-10 flex items-center justify-center bg-red-50 text-red-300 hover:text-red-500 rounded-xl transition-all shadow-sm"
-                            >
-                              <Trash2 size={18} />
+                          <div className="flex items-center gap-3">
+                            <span className="font-black text-sm text-slate-900 tracking-tighter">${item.product.price * item.quantity}</span>
+                            <button onClick={() => removeFromCart(item.id)} className="text-red-300 hover:text-red-500 transition-colors">
+                              <Trash2 size={14} />
                             </button>
                           </div>
                         </motion.div>
@@ -487,26 +471,27 @@ export default function App() {
                     )}
                   </div>
 
-                  <div className="p-10 bg-slate-50 rounded-b-[40px] space-y-8 border-t border-slate-100 shadow-inner">
-                    <div className="space-y-4">
-                       <div className="flex justify-between items-center text-slate-400 font-black uppercase tracking-widest text-[10px]">
-                          <span>Subtotal Estimado</span>
-                          <span>${cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)}.00</span>
-                       </div>
-                       <div className="flex justify-between items-end border-t-4 border-double border-slate-200 pt-6">
-                          <span className="text-slate-800 font-black uppercase tracking-[0.3em] text-sm">Cobro Total</span>
-                          <span className="text-5xl font-black text-amber-600 tracking-tighter leading-none">
-                            ${cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)}
-                          </span>
-                       </div>
+                  <div className="p-5 bg-slate-50 border-t border-slate-200">
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between items-center text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                        <span>Subtotal</span>
+                        <span>${cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)}.00</span>
+                      </div>
+                      <div className="flex justify-between items-end pt-2 border-t border-slate-200">
+                        <span className="text-slate-800 font-black uppercase tracking-widest text-[10px]">Total a Cobrar</span>
+                        <span className="text-3xl font-black text-amber-600 tracking-tighter leading-none">
+                          ${cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)}
+                        </span>
+                      </div>
                     </div>
                     <button 
                       disabled={cart.length === 0}
                       onClick={finalizePurchase}
-                      className="w-full bg-amber-500 disabled:bg-slate-300 text-white py-7 rounded-[32px] font-black text-2xl shadow-2xl shadow-amber-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 uppercase tracking-[0.1em]"
+                      className="w-full bg-amber-500 disabled:bg-slate-300 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase overflow-hidden relative group"
                     >
-                      Procesar Pago
-                      <ChevronRight size={32} strokeWidth={3} />
+                      <span className="relative z-10">Cobrar</span>
+                      <ChevronRight size={20} strokeWidth={3} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                      <div className="absolute inset-0 bg-amber-400 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
                     </button>
                   </div>
                 </div>
@@ -771,124 +756,88 @@ export default function App() {
                 )}
               </div>
 
-              <div className="p-6 md:p-16 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 bg-slate-100/50 overflow-y-auto custom-scrollbar">
-                {/* TICKET DE CAJA (Solicitado por el requerimiento 4) */}
-                <div className="flex flex-col items-center group">
-                  <span className="text-[11px] font-black uppercase text-slate-400 mb-8 tracking-[0.3em] flex items-center gap-4 group-hover:text-amber-500 transition-colors">
-                    <div className="w-2.5 h-2.5 bg-amber-400 rounded-full shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
-                    1. Comprobante Cliente
+              <div className="p-6 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 bg-slate-100/50 overflow-y-auto custom-scrollbar items-start">
+                {/* TICKET DE CAJA (Reduced Size & Mono) */}
+                <div className="flex flex-col items-center">
+                  <span className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] flex items-center gap-2">
+                    <div className="w-2 h-2 bg-amber-400 rounded-full" />
+                    Comprobante
                   </span>
                   
-                  <div className="bg-white w-full shadow-2xl border-t-[12px] border-amber-500 p-10 md:p-12 flex flex-col font-mono text-[13px] text-slate-700 relative border-b-2 border-dotted border-slate-200 transform group-hover:scale-[1.02] transition-transform duration-500">
-                    <div className="absolute top-0 right-0 p-10 opacity-[0.04] pointer-events-none transform rotate-12 scale-[2.5]">
-                      <Droplets size={140} />
-                    </div>
-                    
-                    <div className="text-center mb-12">
-                      <div className="inline-block px-8 py-3 border-[6px] border-slate-900 font-black text-2xl uppercase mb-4 tracking-tighter shadow-sm">Las Delicias</div>
-                      <p className="font-black text-slate-800 text-sm">Sucursal Diamante: Av. Principal #123</p>
-                      <p className="text-[11px] tracking-[0.5em] text-slate-400 uppercase mt-2 font-black leading-none italic">ID FISCAL: DELI880224-T01</p>
+                  <div className="bg-white w-full max-w-[320px] shadow-xl p-6 flex flex-col font-mono text-[10px] text-slate-800 border-t-4 border-slate-800 relative">
+                    <div className="text-center mb-6">
+                      <p className="font-black text-lg underline underline-offset-2">LAS DELICIAS</p>
+                      <p className="mt-1">Av. Principal #123</p>
+                      <p className="text-[8px] opacity-60">RFC: DELI880224-T01</p>
                     </div>
 
-                    <div className="border-b-[6px] border-dotted border-slate-100 my-8"></div>
+                    <div className="border-b border-dashed border-slate-300 my-4"></div>
                     
-                    <div className="space-y-6 mb-10">
+                    <div className="space-y-1 mb-4">
+                      <div className="flex justify-between border-b border-slate-100 pb-1 mb-1 opacity-60">
+                        <span className="w-8">CANT</span>
+                        <span className="flex-1">PRODUCTO</span>
+                        <span className="w-16 text-right">TOTAL</span>
+                      </div>
                       {lastOrder.items.map((item, idx) => (
-                        <div key={idx} className="space-y-2">
-                          <div className="flex justify-between gap-8 font-black text-slate-900 text-lg tracking-tighter">
-                            <span className="flex-1 italic">{item.quantity}x {item.product.name}</span>
-                            <span className="font-black">${item.product.price * item.quantity}.00</span>
-                          </div>
-                          {item.product.id === 'p1' && (
-                             <p className="text-[11px] text-amber-500 italic ml-10 leading-none border-l-4 border-amber-100 pl-4 uppercase font-black tracking-tight">+ Chamoy, Tajín y Chamoy de la casa</p>
-                          )}
+                        <div key={idx} className="flex justify-between gap-1">
+                          <span className="w-8">{item.quantity}x</span>
+                          <span className="flex-1 truncate">{item.product.name.toUpperCase()}</span>
+                          <span className="w-16 text-right">${(item.product.price * item.quantity).toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
 
-                    <div className="border-b-[6px] border-dotted border-slate-100 my-8"></div>
+                    <div className="border-b border-dashed border-slate-300 my-4"></div>
 
-                    <div className="space-y-4 mt-4">
-                      <div className="flex justify-between items-center py-2 bg-slate-100/50 px-6 rounded-2xl border border-slate-100">
-                        <span className="uppercase tracking-[0.4em] font-black text-[11px] text-slate-400">Subtotal Neto</span>
-                        <span className="font-black text-xl text-slate-900 tracking-tighter">${lastOrder.total}.00</span>
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span>SUBTOTAL:</span>
+                        <span>${lastOrder.total.toFixed(2)}</span>
                       </div>
-                      <div className="flex justify-between items-center bg-slate-900 text-white p-6 rounded-3xl font-black text-3xl mt-4 shadow-2xl shadow-slate-900/20">
-                        <span className="tracking-tighter uppercase italic text-sm opacity-60">Total</span>
-                        <span className="tracking-tighter leading-none">${lastOrder.total} MXN</span>
+                      <div className="flex justify-between font-black text-lg mt-2 pt-2 border-t border-slate-200">
+                        <span>TOTAL:</span>
+                        <span>${lastOrder.total.toFixed(2)}</span>
                       </div>
                     </div>
 
-                    <div className="mt-16 text-center space-y-8">
-                      <div className="p-6 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-100">
-                         <p className="text-[12px] font-black text-amber-600 uppercase tracking-[0.3em] font-mono underline decoration-2 underline-offset-8">¡Disfruta tu Delicia!</p>
-                      </div>
-                      <div className="flex flex-col gap-1.5 items-center opacity-30 mt-8">
-                        <div className="h-1 w-[90%] bg-slate-900 rounded-full" />
-                        <div className="h-1 w-[70%] bg-slate-900 rounded-full" />
-                        <div className="h-1 w-[50%] bg-slate-900 rounded-full" />
-                        <p className="text-[10px] font-black text-slate-500 mt-4 uppercase tracking-[0.2em] font-mono">{lastOrder.timestamp.toLocaleDateString()} • {lastOrder.timestamp.toLocaleTimeString()}</p>
-                      </div>
-                    </div>
-                    
-                    {/* Unique paper tear footer (Solicitado por el requerimiento 4) */}
-                    <div className="absolute -bottom-4 left-0 right-0 overflow-hidden h-4 flex">
-                       {[...Array(40)].map((_, i) => (
-                         <div key={i} className="flex-1 bg-white h-full border-b-[8px] border-l-[8px] border-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.05)] transform rotate-45 -translate-y-2.5" />
-                       ))}
+                    <div className="mt-8 text-center text-[9px] opacity-50 space-y-2">
+                      <p>¡GRACIAS POR SU COMPRA!</p>
+                      <p>{lastOrder.timestamp.toLocaleString()}</p>
+                      <p>TICKET #{lastOrder.id}</p>
                     </div>
                   </div>
                 </div>
 
-                {/* COMANDA DE BARRA (Solicitado por el requerimiento 4) */}
-                <div className="flex flex-col items-center group">
-                  <span className="text-[11px] font-black uppercase text-emerald-500 mb-8 tracking-[0.3em] flex items-center gap-4 group-hover:text-emerald-300 transition-colors">
-                    <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.8)]" />
-                    2. Comanda de Producción
+                {/* COMANDA DE BARRA (Minimalist & Bold) */}
+                <div className="flex flex-col items-center">
+                  <span className="text-[10px] font-black uppercase text-emerald-500 mb-4 tracking-[0.2em] flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full" />
+                    Barra
                   </span>
                   
-                  <div className="bg-white w-full shadow-2xl border-t-[12px] border-emerald-500 p-10 md:p-12 flex flex-col font-mono text-slate-900 border-x-4 border-slate-50 border-b-2 border-dashed border-slate-200 transform group-hover:scale-[1.02] transition-transform duration-500 rounded-b-[60px]">
-                    <div className="bg-slate-900 p-8 text-center rounded-[36px] mb-12 shadow-2xl shadow-slate-900/30 overflow-hidden relative">
-                       <div className="absolute top-0 left-0 w-full h-full bg-emerald-500/10 animate-pulse" />
-                       <p className="text-[12px] font-black uppercase text-slate-400 tracking-[0.5em] mb-3 italic relative z-10">Orden Prioritaria</p>
-                       <h4 className="text-4xl font-black tracking-tighter text-white relative z-10 font-mono underline decoration-emerald-500 leading-none">PEDIDO {lastOrder.id}</h4>
+                  <div className="bg-white w-full max-w-[320px] shadow-xl p-6 flex flex-col font-mono text-slate-900 border-t-8 border-emerald-500">
+                    <div className="bg-slate-900 text-white p-3 text-center mb-6">
+                       <h4 className="text-xl font-black">{lastOrder.id}</h4>
                     </div>
 
-                    <div className="space-y-12 flex-1">
+                    <div className="space-y-6 flex-1">
                       {lastOrder.items.filter(i => i.product.category === 'PREPARADA').map((item, idx) => (
-                        <div key={idx} className="space-y-6">
-                          <div className="flex items-start gap-6">
-                            <div className="bg-emerald-500 text-white w-14 h-14 rounded-[20px] flex items-center justify-center font-black text-3xl shadow-xl shadow-emerald-500/30 italic">{item.quantity}</div>
-                            <div className="flex-1 border-b-4 border-double border-slate-50 pb-6">
-                              <h4 className="font-black text-3xl uppercase tracking-tighter leading-none mb-6 italic text-slate-800">{item.product.name}</h4>
-                              <div className="flex flex-wrap gap-3">
-                                <span className="bg-amber-100 text-amber-800 border-2 border-amber-400 px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest italic shadow-sm">+ Con Todo (Salsa)</span>
-                                <span className="bg-emerald-50 text-emerald-800 border-2 border-emerald-100 px-5 py-2.5 rounded-2xl text-[11px] font-black uppercase italic tracking-widest shadow-sm">Edición Especial</span>
-                              </div>
+                        <div key={idx} className="border-b-2 border-slate-100 pb-4">
+                          <div className="flex items-start gap-4">
+                            <span className="bg-slate-100 w-10 h-10 flex items-center justify-center font-black text-xl">{item.quantity}</span>
+                            <div className="flex-1">
+                              <h4 className="font-black text-lg leading-tight uppercase">{item.product.name}</h4>
+                              <p className="text-[10px] mt-1 font-bold italic opacity-60 text-emerald-600">CON TODO / EXTRA HIELO</p>
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="mt-16 pt-12 border-t-8 border-dotted border-slate-100 text-center relative rounded-b-[60px]">
-                      <div className="absolute top-[-15px] left-1/2 transform -translate-x-1/2 bg-white px-8 text-[11px] font-black uppercase tracking-[0.4em] text-slate-300 italic">
-                        Confirmación Insumos
-                      </div>
-                      <div className="bg-emerald-50 p-6 rounded-[32px] border-2 border-emerald-100 shadow-inner">
-                        <p className="text-sm font-black text-emerald-600 uppercase tracking-[0.3em] mb-2 italic flex items-center justify-center gap-3">
-                          <CheckCircle size={20} /> ¡Despachar Ahora!
-                        </p>
-                      </div>
-                      <div className="flex justify-center gap-2 mt-8 opacity-10">
-                        <div className="w-3 h-3 bg-slate-900 rounded-full" />
-                        <div className="w-3 h-3 bg-slate-900 rounded-full" />
-                        <div className="w-3 h-3 bg-slate-900 rounded-full" />
-                      </div>
+                    <div className="mt-8 pt-4 border-t-4 border-double border-slate-100 text-center text-xs font-black">
+                       ORDEN DE PRODUCCIÓN
                     </div>
-
-                    {/* Dotted border line at very bottom */}
-                    <div className="w-full h-1 bg-gradient-to-r from-emerald-500 via-transparent to-emerald-500 opacity-20 mt-10 rounded-full" />
                   </div>
                 </div>
               </div>
@@ -926,26 +875,25 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* SUCCESS TOAST (Solicitado por el requerimiento 1) */}
+      {/* SUCCESS TOAST (Moved to Right Bottom for visibility) */}
       <AnimatePresence>
         {toast && (
           <motion.div
-            initial={{ y: 200, opacity: 0, scale: 0.5 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 200, opacity: 0, scale: 0.5 }}
-            className={`fixed bottom-12 left-1/2 z-[200] -translate-x-1/2 px-10 py-6 rounded-[40px] shadow-[0_40px_80px_rgba(0,0,0,0.3)] flex items-center gap-6 border-4 md:min-w-[600px] ${
-              toast.type === 'success' ? 'bg-emerald-900 text-emerald-50 border-emerald-500/30 backdrop-blur-xl' : 'bg-red-900 text-red-50 border-red-500/30'
-            }`}
+            initial={{ x: 300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 300, opacity: 0 }}
+            className={`fixed bottom-8 right-8 z-[200] px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-4 border ${
+              toast.type === 'success' ? 'bg-emerald-900/90 text-emerald-50 border-emerald-500/30 backdrop-blur-md' : 'bg-red-900/90 text-red-50 border-red-500/30 backdrop-blur-md'
+            } max-w-sm`}
           >
-            <div className={`p-4 rounded-[20px] ${toast.type === 'success' ? 'bg-emerald-500 shadow-xl shadow-emerald-500/40' : 'bg-red-500'} text-white flex-shrink-0 animate-bounce`}>
-              <CheckCircle size={28} strokeWidth={3} />
+            <div className={`p-2 rounded-xl ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-red-500'} text-white`}>
+              <CheckCircle size={20} strokeWidth={3} />
             </div>
             <div className="flex-1">
-               <p className="text-[10px] font-black uppercase tracking-[0.4em] mb-1 opacity-60">Operación Exitosa</p>
-               <p className="font-black text-lg leading-tight tracking-tight">{toast.message}</p>
+               <p className="font-black text-sm tracking-tight leading-tight">{toast.message}</p>
             </div>
-            <button onClick={() => setToast(null)} className="text-emerald-200 hover:text-white p-2">
-               <X size={28} strokeWidth={3} />
+            <button onClick={() => setToast(null)} className="text-emerald-200 hover:text-white">
+               <X size={20} />
             </button>
           </motion.div>
         )}
