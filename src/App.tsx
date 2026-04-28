@@ -26,7 +26,8 @@ import {
   DollarSign,
   History,
   Info,
-  Loader2
+  Loader2,
+  Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -120,6 +121,27 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpenMobile, setIsCartOpenMobile] = useState(false);
   const [wastage, setWastage] = useState<Wastage[]>(INITIAL_WASTAGE);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  // PWA Effect
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const installApp = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+      setToast({ message: '¡App instalada con éxito!', type: 'success' });
+    }
+  };
 
   // Toast handler
   useEffect(() => {
@@ -230,6 +252,14 @@ export default function App() {
         </nav>
 
         <div className="p-6 bg-slate-50 border-t border-slate-100">
+          {deferredPrompt && (
+            <button 
+              onClick={installApp}
+              className="w-full flex items-center gap-3 p-4 mb-6 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95 transition-all"
+            >
+              <Download size={16} /> Instalar App
+            </button>
+          )}
           <h3 className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-widest">Alertas de Stock</h3>
           <div className="space-y-3">
             {stock.filter(s => s.amount <= s.minThreshold).map(item => (
@@ -384,33 +414,41 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Column 2: Product Grid (Compact) */}
-                <div className="flex-1 flex flex-col min-w-0 bg-white rounded-3xl border border-amber-100 shadow-sm overflow-hidden p-4">
-                  <header className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-black text-slate-800 tracking-tighter uppercase italic">Productos</h2>
-                    <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
-                      <button className="px-4 py-1.5 bg-white shadow-sm text-amber-600 rounded-lg font-black text-[10px] uppercase tracking-widest border border-amber-100">Preparadas</button>
-                      <button className="px-4 py-1.5 text-slate-400 font-black text-[10px] uppercase tracking-widest">Insumos</button>
+                {/* Column 2: Product Grid (Compact & Integrated) */}
+                <div className="flex-1 flex flex-col min-w-0 bg-white/40 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-sm overflow-hidden p-6">
+                  <header className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-8 bg-amber-500 rounded-full" />
+                      <h2 className="text-2xl font-black text-slate-800 tracking-tighter uppercase italic">Productos</h2>
+                    </div>
+                    <div className="flex bg-slate-100/50 p-1.5 rounded-2xl border border-slate-200/50">
+                      <button className="px-5 py-2 bg-white shadow-sm text-amber-600 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] border border-slate-100">Preparadas</button>
+                      <button className="px-5 py-2 text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">Insumos</button>
                     </div>
                   </header>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 overflow-y-auto pr-1 custom-scrollbar">
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-1 custom-scrollbar">
                     {PRODUCTS.map(product => (
                       <motion.button
+                        whileTop={{ y: -4 }}
                         whileTap={{ scale: 0.98 }}
                         key={product.id}
                         onClick={() => addToCart(product)}
-                        className="group bg-slate-50 p-3 rounded-2xl border border-transparent hover:border-amber-400 hover:bg-white hover:shadow-lg transition-all text-left relative flex flex-col"
+                        className="group bg-white p-4 rounded-3xl border border-slate-100 hover:border-amber-400/50 hover:bg-amber-50/10 hover:shadow-xl hover:shadow-amber-500/5 transition-all text-left relative flex flex-col"
                       >
-                        <div className="w-12 h-12 bg-white rounded-xl mb-2 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shadow-sm">
+                        <div className="w-14 h-14 bg-amber-50/50 rounded-2xl mb-3 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-inner">
                           {product.name.includes('Tamarindo') ? '🍊' : product.name.includes('Fresa') ? '🍓' : product.name.includes('Menta') ? '🌿' : '🥤'}
                         </div>
-                        <div className="space-y-0.5">
-                          <h3 className="font-black text-slate-800 text-xs truncate leading-tight">{product.name}</h3>
-                          <p className="text-amber-600 font-black text-sm">${product.price}</p>
+                        <div className="space-y-1">
+                          <h3 className="font-black text-slate-800 text-[13px] truncate leading-tight tracking-tight uppercase">{product.name}</h3>
+                          <div className="flex items-center gap-2">
+                             <p className="text-amber-600 font-extrabold text-sm">${product.price}</p>
+                             <div className="w-1 h-1 bg-slate-200 rounded-full" />
+                             <p className="text-[9px] text-slate-400 font-black uppercase tracking-tighter">MXN</p>
+                          </div>
                         </div>
-                        <div className="absolute top-2 right-2 p-1.5 bg-amber-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Plus size={14} strokeWidth={3} />
+                        <div className="absolute top-4 right-4 p-2 bg-amber-500 text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg shadow-amber-500/20">
+                          <Plus size={16} strokeWidth={3} />
                         </div>
                       </motion.button>
                     ))}
@@ -440,35 +478,50 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Column 3: Cart/Ticket Summary (Fixed Sidebar) */}
-                <div className="hidden lg:flex flex-col w-80 bg-white rounded-3xl border border-amber-100 shadow-xl overflow-hidden">
-                  <div className="p-4 border-b border-amber-50 bg-amber-50/20 flex justify-between items-center">
+                {/* Column 3: Cart/Ticket Summary (Modern Minimalist Sidebar) */}
+                <div className="hidden lg:flex flex-col w-96 bg-white/80 backdrop-blur-md rounded-3xl border border-slate-100 shadow-2xl overflow-hidden relative">
+                  <div className="p-6 border-b border-slate-50 bg-white/40 flex justify-between items-center relative z-10">
                     <div>
-                      <h3 className="font-black text-lg tracking-tight">Venta Actual</h3>
-                      <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-1">
-                        <Clock size={10} /> Online
+                      <h3 className="font-black text-2xl tracking-tighter text-slate-800">Canasta</h3>
+                      <p className="text-[10px] text-amber-500 font-extrabold uppercase tracking-[0.2em] mt-1">
+                        {cart.reduce((acc, item) => acc + item.quantity, 0)} ARTÍCULOS LISTOS
                       </p>
                     </div>
-                    <ShoppingBag className="text-amber-500" size={20} />
+                    <div className="w-12 h-12 bg-amber-100/50 rounded-2xl flex items-center justify-center text-amber-600">
+                      <ShoppingBag size={24} />
+                    </div>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar relative z-10">
                     {cart.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center text-slate-100 space-y-4">
-                        <ShoppingBag size={48} strokeWidth={1} />
-                        <p className="font-black text-slate-300 uppercase tracking-widest text-xs">Vaca</p>
+                      <div className="h-full flex flex-col items-center justify-center text-slate-200 space-y-4 opacity-50">
+                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center border border-dashed border-slate-200">
+                          <ShoppingBag size={40} strokeWidth={1} />
+                        </div>
+                        <p className="font-black text-slate-300 uppercase tracking-widest text-[10px]">Sin pedidos aún</p>
                       </div>
                     ) : (
                       cart.map(item => (
-                        <motion.div layout key={item.id} className="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
-                          <div className="flex-1 min-w-0 pr-2">
-                            <h4 className="font-black text-[11px] text-slate-800 leading-none truncate">{item.product.name}</h4>
-                            <p className="text-[9px] text-slate-400 font-black mt-1 uppercase tracking-tight">${item.product.price} x {item.quantity}</p>
+                        <motion.div 
+                          layout 
+                          key={item.id} 
+                          className="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-100/60 shadow-sm hover:shadow-md transition-shadow group"
+                        >
+                          <div className="flex-1 min-w-0 pr-4">
+                            <h4 className="font-black text-xs text-slate-800 leading-tight truncate">{item.product.name}</h4>
+                            <div className="flex items-center gap-2 mt-1.5">
+                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tight">${item.product.price} por unidad</span>
+                              <div className="w-1 h-1 bg-slate-200 rounded-full" />
+                              <span className="text-[9px] text-amber-600 font-black">Cant: {item.quantity}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className="font-black text-sm text-slate-900 tracking-tighter">${item.product.price * item.quantity}</span>
-                            <button onClick={() => removeFromCart(item.id)} className="text-red-300 hover:text-red-500 transition-colors">
-                              <Trash2 size={14} />
+                          <div className="flex items-center gap-4">
+                            <span className="font-black text-sm text-slate-900 tracking-tighter whitespace-nowrap">${item.product.price * item.quantity}</span>
+                            <button 
+                              onClick={() => removeFromCart(item.id)} 
+                              className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
+                            >
+                              <Trash2 size={16} />
                             </button>
                           </div>
                         </motion.div>
@@ -476,27 +529,29 @@ export default function App() {
                     )}
                   </div>
 
-                  <div className="p-5 bg-slate-50 border-t border-slate-200">
-                    <div className="space-y-2 mb-4">
+                  <div className="p-6 bg-white/60 border-t border-slate-100 relative z-10">
+                    <div className="space-y-3 mb-6">
                       <div className="flex justify-between items-center text-[10px] text-slate-400 font-black uppercase tracking-widest">
-                        <span>Subtotal</span>
+                        <span>Ticket Estándar</span>
                         <span>${cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)}.00</span>
                       </div>
-                      <div className="flex justify-between items-end pt-2 border-t border-slate-200">
-                        <span className="text-slate-800 font-black uppercase tracking-widest text-[10px]">Total a Cobrar</span>
-                        <span className="text-3xl font-black text-amber-600 tracking-tighter leading-none">
-                          ${cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)}
-                        </span>
+                      <div className="flex justify-between items-end pt-4 border-t border-dashed border-slate-200">
+                        <div className="flex flex-col">
+                          <span className="text-slate-400 font-black uppercase tracking-widest text-[9px] mb-1">Total Parcial</span>
+                          <span className="text-4xl font-black text-amber-600 tracking-tighter leading-none">
+                            ${cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <button 
                       disabled={cart.length === 0}
                       onClick={finalizePurchase}
-                      className="w-full bg-amber-500 disabled:bg-slate-300 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-amber-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase overflow-hidden relative group"
+                      className="w-full bg-amber-500 disabled:bg-slate-200 disabled:text-slate-400 text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-amber-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-tighter overflow-hidden relative group"
                     >
-                      <span className="relative z-10">Cobrar</span>
-                      <ChevronRight size={20} strokeWidth={3} className="relative z-10 group-hover:translate-x-1 transition-transform" />
-                      <div className="absolute inset-0 bg-amber-400 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
+                      <span className="relative z-10">Confirmar Pago</span>
+                      <ChevronRight size={22} strokeWidth={3} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-600 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
                     </button>
                   </div>
                 </div>
@@ -666,7 +721,7 @@ export default function App() {
         )}
       </motion.button>
 
-      {/* Mobile Cart Overlay (Solicitado por el requerimiento 2) */}
+      {/* Mobile Cart Overlay (Refined & Discrete) */}
       <AnimatePresence>
         {isCartOpenMobile && (
           <>
@@ -675,57 +730,57 @@ export default function App() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsCartOpenMobile(false)}
-              className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[60]" 
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60]" 
             />
             <motion.div
-              initial={{ y: '100%', scale: 1.1 }}
-              animate={{ y: 0, scale: 1 }}
-              exit={{ y: '100%', scale: 1.1 }}
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[64px] z-[70] shadow-[0_-20px_60px_rgba(0,0,0,0.2)] flex flex-col max-h-[90vh] overflow-hidden"
+              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[40px] z-[70] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] flex flex-col max-h-[85vh] overflow-hidden"
             >
-              <div className="h-2 w-16 bg-slate-100 rounded-full mx-auto mt-4 mb-2" />
-              <div className="p-10 pb-6 flex justify-between items-end border-b border-slate-50">
+              <div className="h-1.5 w-12 bg-slate-200 rounded-full mx-auto mt-4 mb-2" />
+              <div className="px-8 py-6 flex justify-between items-center border-b border-slate-50">
                 <div>
-                  <h3 className="font-black text-4xl tracking-tighter text-slate-900 leading-none mb-2">Canasta</h3>
-                  <p className="text-[10px] text-amber-500 font-black uppercase tracking-[0.3em] font-mono">{cart.length} Artículos Listos</p>
+                  <h3 className="font-black text-2xl tracking-tighter text-slate-800">Canasta</h3>
+                  <p className="text-[9px] text-amber-500 font-black uppercase tracking-[0.2em]">{cart.length} Artículos</p>
                 </div>
-                <button onClick={() => setIsCartOpenMobile(false)} className="w-14 h-14 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 active:bg-slate-100 transition-colors">
-                   <X size={28} />
+                <button onClick={() => setIsCartOpenMobile(false)} className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
+                   <X size={20} />
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
                 {cart.length === 0 ? (
-                  <div className="flex flex-col items-center py-20 text-slate-100 opacity-50 italic">
-                    <ShoppingBag size={120} strokeWidth={1} />
-                    <p className="font-black text-slate-300 mt-8 text-center text-xl tracking-[0.2em] uppercase">Vacío</p>
+                  <div className="flex flex-col items-center py-12 opacity-30">
+                    <ShoppingBag size={60} strokeWidth={1} />
+                    <p className="font-black text-slate-400 mt-4 text-xs uppercase tracking-widest">Vacío</p>
                   </div>
                 ) : (
                   cart.map(item => (
-                    <div key={item.id} className="flex justify-between items-center bg-slate-50/30 p-6 rounded-[32px] border border-slate-50/50">
-                      <div className="flex-1">
-                        <h4 className="font-black text-slate-800 text-xl tracking-tight leading-none">{item.product.name}</h4>
-                        <p className="text-xs text-slate-400 mt-2 font-black uppercase tracking-widest italic">${item.product.price} x {item.quantity}</p>
+                    <div key={item.id} className="flex justify-between items-center bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                      <div className="flex-1 pr-4">
+                        <h4 className="font-black text-slate-800 text-sm tracking-tight leading-none">{item.product.name}</h4>
+                        <p className="text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-widest">${item.product.price} x {item.quantity}</p>
                       </div>
-                      <div className="flex items-center gap-6">
-                        <span className="font-black text-2xl text-amber-600 tracking-tighter">${item.product.price * item.quantity}</span>
-                        <button onClick={() => removeFromCart(item.id)} className="text-red-400 p-3 bg-white rounded-2xl shadow-sm border border-red-50">
-                           <Trash2 size={24} />
+                      <div className="flex items-center gap-4">
+                        <span className="font-black text-base text-amber-600 tracking-tighter">${item.product.price * item.quantity}</span>
+                        <button onClick={() => removeFromCart(item.id)} className="text-red-300 p-2 hover:text-red-500 transition-colors">
+                           <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
                   ))
                 )}
               </div>
-              <div className="p-10 bg-white border-t-2 border-dashed border-slate-100 space-y-8 rounded-b-[64px]">
+              <div className="p-8 bg-white border-t border-slate-100 space-y-6">
                 <div className="flex justify-between items-end">
-                   <span className="text-slate-400 font-black uppercase tracking-[0.3em] text-xs">Total Parcial</span>
-                   <span className="text-5xl font-black text-amber-600 tracking-tighter leading-none">${cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)}</span>
+                   <span className="text-slate-400 font-extrabold uppercase tracking-widest text-[9px]">Total Parcial</span>
+                   <span className="text-4xl font-black text-amber-600 tracking-tighter leading-none">${cart.reduce((acc, item) => acc + (item.product.price * item.quantity), 0)}</span>
                 </div>
                 <button 
                   onClick={finalizePurchase}
                   disabled={cart.length === 0}
-                  className="w-full bg-amber-500 text-white py-8 rounded-[36px] font-black text-2xl shadow-[0_20px_50px_rgba(245,158,11,0.35)] active:scale-95 transition-transform uppercase tracking-[0.2em]"
+                  className="w-full bg-amber-500 text-white py-5 rounded-[24px] font-black text-lg shadow-lg shadow-amber-500/20 active:scale-95 transition-all uppercase tracking-widest"
                 >
                   Confirmar Pago
                 </button>
@@ -735,46 +790,45 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* DUAL PRINT MODAL (Solicitado por el requerimiento 1 y 4) */}
+      {/* DUAL PRINT MODAL (Refined & Discrete) */}
       <AnimatePresence>
         {showPrintModal && lastOrder && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 md:p-6">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => !isPrinting && setShowPrintModal(false)}
-              className="absolute inset-0 bg-slate-900/80 backdrop-blur-2xl" 
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" 
             />
             
             <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50 }}
-              transition={{ type: 'spring', damping: 20, stiffness: 100 }}
-              className="relative bg-white w-full max-w-6xl md:rounded-[72px] rounded-[48px] shadow-[0_60px_120px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col max-h-[96vh] border border-white/20"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative bg-white w-full max-w-4xl rounded-[40px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-slate-100"
             >
-              <div className="p-8 md:p-12 border-b-2 border-dashed border-slate-100 flex justify-between items-center bg-amber-50/40">
-                <div className="flex items-center gap-6 text-slate-800">
-                  <div className="p-5 bg-amber-500 text-white rounded-[28px] shadow-2xl shadow-amber-500/40 transform -rotate-3">
-                    <Printer size={40} strokeWidth={2.5} />
+              <div className="px-8 py-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/30">
+                <div className="flex items-center gap-4 text-slate-800">
+                  <div className="p-3 bg-amber-500 text-white rounded-2xl shadow-lg shadow-amber-500/20">
+                    <Printer size={24} strokeWidth={2.5} />
                   </div>
                   <div>
-                    <h3 className="font-black text-3xl md:text-4xl uppercase tracking-tighter leading-none italic">Centro de Impresión</h3>
-                    <p className="text-[10px] md:text-sm text-amber-600 font-black uppercase tracking-[0.5em] leading-none mt-2 font-mono">Dual Output Active • {lastOrder.id}</p>
+                    <h3 className="font-black text-xl uppercase tracking-tighter leading-none italic">Impresión</h3>
+                    <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1">Pedido: {lastOrder.id}</p>
                   </div>
                 </div>
                 {!isPrinting && (
                   <button 
                     onClick={() => setShowPrintModal(false)}
-                    className="bg-white w-16 h-16 rounded-full flex items-center justify-center shadow-2xl hover:bg-slate-50 transition-all text-slate-300 hover:text-slate-500 border border-slate-50"
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-slate-500 hover:bg-slate-50 transition-all"
                   >
-                    <X size={32} />
+                    <X size={24} />
                   </button>
                 )}
               </div>
 
-              <div className="p-6 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 bg-slate-100/50 overflow-y-auto custom-scrollbar items-start">
+              <div className="p-6 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-100/30 overflow-y-auto custom-scrollbar items-start">
                 {/* TICKET DE CAJA (Reduced Size & Mono) */}
                 <div className="flex flex-col items-center">
                   <span className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-[0.2em] flex items-center gap-2">
@@ -782,47 +836,45 @@ export default function App() {
                     Comprobante
                   </span>
                   
-                  <div className="bg-white w-full max-w-[320px] shadow-xl p-6 flex flex-col font-mono text-[10px] text-slate-800 border-t-4 border-slate-800 relative">
+                  <div className="bg-white w-full max-w-[300px] shadow-sm p-8 flex flex-col font-mono text-[9px] text-slate-900 border border-slate-100 relative">
                     <div className="text-center mb-6">
-                      <p className="font-black text-lg underline underline-offset-2">LAS DELICIAS</p>
-                      <p className="mt-1">Av. Principal #123</p>
-                      <p className="text-[8px] opacity-60">RFC: DELI880224-T01</p>
+                      <p className="font-extrabold text-xs tracking-[0.3em] uppercase mb-1">Las Delicias</p>
+                      <p className="opacity-60 text-[8px] tracking-widest uppercase italic">Artesanal & Natural</p>
+                      <p className="mt-4 opacity-40">-----------------------------</p>
                     </div>
 
-                    <div className="border-b border-dashed border-slate-300 my-4"></div>
-                    
-                    <div className="space-y-1 mb-4">
-                      <div className="flex justify-between border-b border-slate-100 pb-1 mb-1 opacity-60">
-                        <span className="w-8">CANT</span>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between font-black border-b border-slate-50 pb-1 mb-1 opacity-20">
+                        <span className="w-6">C</span>
                         <span className="flex-1">PRODUCTO</span>
-                        <span className="w-16 text-right">TOTAL</span>
+                        <span className="w-12 text-right">TOT</span>
                       </div>
                       {lastOrder.items.map((item, idx) => (
-                        <div key={idx} className="flex justify-between gap-1">
-                          <span className="w-8">{item.quantity}x</span>
-                          <span className="flex-1 truncate">{item.product.name.toUpperCase()}</span>
-                          <span className="w-16 text-right">${(item.product.price * item.quantity).toFixed(2)}</span>
+                        <div key={idx} className="flex justify-between gap-1 leading-tight mb-1">
+                          <span className="w-6 opacity-60">{item.quantity}</span>
+                          <span className="flex-1 font-black">{item.product.name.toUpperCase()}</span>
+                          <span className="w-12 text-right">${(item.product.price * item.quantity).toFixed(2)}</span>
                         </div>
                       ))}
                     </div>
 
-                    <div className="border-b border-dashed border-slate-300 my-4"></div>
+                    <p className="text-center opacity-40 mb-4">-----------------------------</p>
 
                     <div className="space-y-1">
                       <div className="flex justify-between">
                         <span>SUBTOTAL:</span>
                         <span>${lastOrder.total.toFixed(2)}</span>
                       </div>
-                      <div className="flex justify-between font-black text-lg mt-2 pt-2 border-t border-slate-200">
-                        <span>TOTAL:</span>
+                      <div className="flex justify-between font-black text-xs mt-3 pt-2 border-t border-slate-100">
+                        <span>TOTAL MXN:</span>
                         <span>${lastOrder.total.toFixed(2)}</span>
                       </div>
                     </div>
 
-                    <div className="mt-8 text-center text-[9px] opacity-50 space-y-2">
-                      <p>¡GRACIAS POR SU COMPRA!</p>
-                      <p>{lastOrder.timestamp.toLocaleString()}</p>
-                      <p>TICKET #{lastOrder.id}</p>
+                    <div className="mt-10 text-center opacity-40 space-y-2 text-[8px] uppercase tracking-widest font-black italic">
+                      <p>¡Disfruta tu Delicia!</p>
+                      <p className="mt-4">{lastOrder.timestamp.toLocaleString()}</p>
+                      <p>Folio: {lastOrder.id}</p>
                     </div>
                   </div>
                 </div>
@@ -834,56 +886,57 @@ export default function App() {
                     Barra
                   </span>
                   
-                  <div className="bg-white w-full max-w-[320px] shadow-xl p-6 flex flex-col font-mono text-slate-900 border-t-8 border-emerald-500">
-                    <div className="bg-slate-900 text-white p-3 text-center mb-6">
-                       <h4 className="text-xl font-black">{lastOrder.id}</h4>
+                  <div className="bg-white w-full max-w-[300px] shadow-sm p-8 flex flex-col font-mono text-slate-900 border border-slate-100">
+                    <div className="border-b-2 border-slate-900 pb-3 mb-6 flex justify-between items-end">
+                       <h4 className="text-2xl font-black">{lastOrder.id}</h4>
+                       <p className="text-[9px] font-black uppercase tracking-widest opacity-40 italic">Orden Barra</p>
                     </div>
 
                     <div className="space-y-6 flex-1">
                       {lastOrder.items.filter(i => i.product.category === 'PREPARADA').map((item, idx) => (
-                        <div key={idx} className="border-b-2 border-slate-100 pb-4">
+                        <div key={idx} className="border-b border-dashed border-slate-200 pb-4">
                           <div className="flex items-start gap-4">
-                            <span className="bg-slate-100 w-10 h-10 flex items-center justify-center font-black text-xl">{item.quantity}</span>
+                            <span className="text-xl font-black">{item.quantity}</span>
                             <div className="flex-1">
-                              <h4 className="font-black text-lg leading-tight uppercase">{item.product.name}</h4>
-                              <p className="text-[10px] mt-1 font-bold italic opacity-60 text-emerald-600">CON TODO / EXTRA HIELO</p>
+                              <h4 className="font-extrabold text-sm leading-tight uppercase tracking-wide">{item.product.name}</h4>
+                              <p className="text-[9px] mt-1 font-bold italic text-emerald-600 uppercase tracking-tighter opacity-60">CON TODO / EXTRA HIELO</p>
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="mt-8 pt-4 border-t-4 border-double border-slate-100 text-center text-xs font-black">
-                       ORDEN DE PRODUCCIÓN
+                    <div className="mt-10 text-center text-[8px] font-black uppercase tracking-[0.4em] opacity-30 italic">
+                       Producción Inmediata
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* ACTION FOOTER (Solicitado por el requerimiento 1) */}
-              <div className="p-8 md:p-16 bg-white border-t border-slate-100 flex flex-col md:flex-row justify-end gap-6 shadow-[0_-40px_80px_rgba(0,0,0,0.05)]">
+              {/* ACTION FOOTER (Refined & Discrete) */}
+              <div className="p-6 bg-white border-t border-slate-50 flex flex-col md:flex-row justify-end gap-4">
                 <button 
                   disabled={isPrinting}
                   onClick={() => setShowPrintModal(false)}
-                  className="px-12 py-6 rounded-[32px] font-black bg-slate-100 text-slate-400 hover:bg-slate-200 transition-all uppercase tracking-widest text-sm shadow-sm"
+                  className="px-8 py-4 rounded-2xl font-black bg-slate-50 text-slate-400 hover:bg-slate-100 transition-all uppercase tracking-widest text-[10px]"
                 >
                   Regresar al POS
                 </button>
                 <motion.button 
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.98 }}
                   disabled={isPrinting}
                   onClick={simulatePrint}
-                  className={`min-w-[340px] px-14 py-6 rounded-[32px] font-black ${isPrinting ? 'bg-indigo-500' : 'bg-amber-500'} text-white shadow-[0_30px_60px_rgba(245,158,11,0.3)] flex items-center justify-center gap-5 transition-all uppercase tracking-[0.2em] text-base active:shadow-inner hover:scale-[1.02]`}
+                  className={`min-w-[240px] px-8 py-4 rounded-2xl font-black ${isPrinting ? 'bg-indigo-500' : 'bg-amber-500'} text-white shadow-lg shadow-amber-500/10 flex items-center justify-center gap-3 transition-all uppercase tracking-widest text-xs`}
                 >
                   {isPrinting ? (
                     <>
-                      <Loader2 size={32} className="animate-spin" strokeWidth={3} />
-                      Conectando...
+                      <Loader2 size={18} className="animate-spin" />
+                      Procesando...
                     </>
                   ) : (
                     <>
-                      <Printer size={32} strokeWidth={2.5} />
-                      Imprimir Comprobantes
+                      <Printer size={18} strokeWidth={2.5} />
+                      Imprimir
                     </>
                   )}
                 </motion.button>
@@ -935,4 +988,13 @@ export default function App() {
       `}</style>
     </div>
   );
+}
+
+// Service Worker Registration for PWA support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.log('SW registration failed: ', err);
+    });
+  });
 }
