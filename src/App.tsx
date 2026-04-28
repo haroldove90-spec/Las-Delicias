@@ -9,12 +9,17 @@ import {
   Minus, 
   Trash2, 
   CheckCircle,
+  CheckCircle2,
   Clock,
   MapPin,
   X,
   Printer,
   ChevronRight,
   Droplets,
+  Phone,
+  Navigation,
+  ExternalLink,
+  Wallet,
   Package,
   Menu,
   TrendingUp,
@@ -501,133 +506,146 @@ export default function App() {
             {role === 'REPARTIDOR' && (
               <motion.div
                 key="repartidor-view"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="space-y-12 pb-20 md:pb-0"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col h-full -m-4 md:-m-10 bg-slate-50"
               >
-                <section>
-                  <header className="mb-10">
-                    <h2 className="text-4xl font-black text-slate-800 tracking-tighter uppercase italic">Rutas de Hoy</h2>
-                    <p className="text-slate-500 font-bold text-lg">Entregas domiciliarias filtradas por proximidad</p>
-                  </header>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {orders.map(order => (
-                      <div key={order.id} className="bg-white rounded-[56px] border border-amber-100 p-8 md:p-12 flex flex-col md:flex-row gap-10 shadow-sm hover:shadow-[0_48px_96px_rgba(245,158,11,0.12)] transition-all group overflow-hidden relative border-b-8 border-amber-500">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-[80px] -mr-16 -mt-16 flex items-center justify-center p-8 opacity-10 group-hover:opacity-30 transition-opacity">
-                           <Truck className="text-amber-600 mt-6 mr-6" size={50} />
-                        </div>
-                        
-                        <div className="flex-1 space-y-8">
-                          <div className="flex justify-between items-start">
-                            <div className="space-y-2">
-                              <p className="text-xs font-black text-amber-600 uppercase tracking-[0.4em] mb-2">{order.id}</p>
-                              <h3 className="font-black text-3xl flex items-center gap-4 text-slate-800 tracking-tighter leading-tight">
-                                 <div className="p-4 bg-amber-100 text-amber-600 rounded-3xl"><MapPin size={32} /></div>
-                                 <span className="max-w-[280px]">{order.address}</span>
-                              </h3>
-                            </div>
-                            <span className={`px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl ${
-                              order.status === 'PENDIENTE' ? 'bg-amber-100 text-amber-700 shadow-amber-200/50' : 'bg-emerald-100 text-emerald-700 shadow-emerald-200/50'
-                            }`}>
-                              {order.status}
-                            </span>
-                          </div>
-                          
-                          <div className="bg-slate-50 p-8 rounded-[40px] border border-slate-100">
-                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-4 flex items-center gap-3">
-                               <ShoppingBag size={14} /> Manifiesto de Carga
-                             </p>
-                            <div className="space-y-3">
-                              {order.items.map((it, idx) => (
-                                 <div key={idx} className="flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:scale-[1.01] transition-transform">
-                                   <span className="font-black text-slate-800 text-lg uppercase tracking-tighter">{it.product.name}</span>
-                                   <div className="flex items-center gap-4">
-                                     <span className="bg-amber-100 text-amber-700 w-10 h-10 rounded-full flex items-center justify-center font-black text-sm border-2 border-white shadow-sm italic">x{it.quantity}</span>
-                                   </div>
-                                 </div>
-                              ))}
-                            </div>
-                          </div>
-    
-                          <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-slate-400 border-t-2 border-dashed border-slate-100 pt-8">
-                            <div className="flex items-center gap-6">
-                              <span className="flex items-center gap-2.5 bg-white border border-slate-100 px-5 py-2.5 rounded-full shadow-sm text-slate-800"><Clock size={18} /> 14:05 PM</span>
-                            </div>
-                            <div className="text-right">
-                               <p className="text-[10px] text-slate-400 mb-1 uppercase font-black">Cobrar al Cliente</p>
-                               <span className="text-amber-600 text-4xl font-black italic tracking-tighter shadow-amber-200">${order.total} MXN</span>
-                            </div>
-                          </div>
-                        </div>
-    
-                        <div className="flex md:flex-col gap-5 justify-center min-w-[240px]">
-                          <button className="flex-1 bg-slate-900 text-white px-10 py-6 rounded-[32px] font-black hover:bg-black shadow-[0_20px_40px_rgba(15,23,42,0.3)] flex items-center justify-center gap-4 transition-all hover:scale-[1.05] active:scale-95 text-lg">
-                            <CheckCircle size={28} /> Entregado
-                          </button>
-                          <button className="flex-1 bg-emerald-50 text-emerald-700 border-4 border-white px-10 py-6 rounded-[32px] font-black hover:bg-emerald-100 transition-all flex items-center justify-center gap-4 text-lg shadow-sm">
-                            <div className="p-2 bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/20"><MapPin size={20} /></div> Iniciar Ruta
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <section>
-                   <header className="mb-10 flex items-center gap-6">
-                      <div className="p-4 bg-indigo-100 text-indigo-600 rounded-3xl shadow-lg shadow-indigo-100">
-                        <History size={32} />
+                {/* 3. Sticky Liquidation Summary */}
+                <div className="sticky top-0 z-30 bg-slate-900 text-white px-6 py-4 shadow-xl border-b border-slate-800">
+                  <div className="max-w-md mx-auto flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                        <Wallet size={20} className="text-white" />
                       </div>
                       <div>
-                        <h2 className="text-4xl font-black text-slate-800 tracking-tighter uppercase">Historial del Turno</h2>
-                        <p className="text-slate-500 font-bold text-lg italic underline underline-offset-8 decoration-4 decoration-indigo-200">Récord de entregas exitosas</p>
+                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">Liquidación Hoy</p>
+                        <p className="text-xl font-black tracking-tighter text-emerald-400">
+                          ${orders.filter(o => o.status === 'ENTREGADO').reduce((sum, o) => sum + o.total, 0).toLocaleString()}
+                        </p>
                       </div>
-                   </header>
-                   <div className="bg-white rounded-[56px] border border-amber-100 overflow-hidden shadow-sm">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse min-w-[800px]">
-                          <thead className="bg-slate-50 text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] border-b border-slate-100">
-                            <tr>
-                              <th className="px-12 py-8">Voucher / ID</th>
-                              <th className="px-12 py-8">Destino Final</th>
-                              <th className="px-12 py-8">Monto Cobrado</th>
-                              <th className="px-12 py-8">Estado Actual</th>
-                              <th className="px-12 py-8 text-right">Llegada</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-50 font-bold">
-                            {HISTORIAL_DELIVERIES.map(item => (
-                              <tr key={item.id} className="hover:bg-amber-100/10 transition-colors group">
-                                 <td className="px-12 py-8">
-                                   <div className="flex items-center gap-3">
-                                      <div className="w-2 h-8 bg-indigo-500 rounded-full group-hover:scale-y-125 transition-transform" />
-                                      <span className="font-mono font-black text-indigo-600 text-lg uppercase">{item.id}</span>
-                                   </div>
-                                 </td>
-                                 <td className="px-12 py-8 text-slate-600">{item.address}</td>
-                                 <td className="px-12 py-8">
-                                   <div className="flex items-center gap-2">
-                                      <span className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-2xl font-black text-xl italic">${item.total}.00</span>
-                                   </div>
-                                 </td>
-                                 <td className="px-12 py-8">
-                                   <div className="flex items-center gap-3 text-emerald-600 font-black uppercase text-[10px] tracking-[0.2em] bg-emerald-50/50 w-fit px-4 py-2 rounded-full border border-emerald-100">
-                                     <div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                                     {item.status}
-                                   </div>
-                                 </td>
-                                 <td className="px-12 py-8 text-right text-slate-400 font-black text-base italic">
-                                    {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                 </td>
-                              </tr>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-none mb-1">Entregas</p>
+                      <p className="text-xl font-black tracking-tighter">
+                        {orders.filter(o => o.status === 'ENTREGADO').length} <span className="text-sm font-medium text-slate-500 italic">/ {orders.length}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-4 space-y-8 custom-scrollbar pb-24">
+                  {/* Active Orders Section */}
+                  <section>
+                    <header className="mb-4 flex justify-between items-center px-2">
+                       <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                         <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
+                         Ruta Activa
+                       </h3>
+                    </header>
+
+                    <div className="space-y-4">
+                      {orders.filter(o => o.status !== 'ENTREGADO').map((order, idx) => (
+                        <motion.div 
+                          layout
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          key={order.id} 
+                          className={`bg-white rounded-3xl border shadow-sm overflow-hidden transition-all duration-300 ${
+                            order.status === 'EN_CAMINO' ? 'border-emerald-200 ring-2 ring-emerald-500/10' : 'border-slate-100'
+                          }`}
+                        >
+                          {/* Card Content */}
+                          <div className="p-5 flex flex-col gap-4">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">PEDIDO {order.id}</p>
+                                <h4 className="text-lg font-black text-slate-900 leading-tight">Juan Pérez</h4>
+                                <p className="text-sm text-slate-500 font-medium flex items-center gap-1.5 mt-1">
+                                  <MapPin size={14} className="text-emerald-500 shrink-0" />
+                                  {order.address}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Cobrar</p>
+                                <p className="text-2xl font-black text-slate-900 tracking-tighter">${order.total}</p>
+                              </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="grid grid-cols-2 gap-3 pt-2">
+                              <button className="flex items-center justify-center gap-2 py-3.5 bg-blue-50 text-blue-600 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">
+                                <Phone size={16} /> Llamar
+                              </button>
+                              <button 
+                                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.address)}`, '_blank')}
+                                className="flex items-center justify-center gap-2 py-3.5 bg-emerald-50 text-emerald-600 rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all"
+                              >
+                                <Navigation size={16} /> Navegar
+                              </button>
+                            </div>
+
+                            {/* Status Stepper */}
+                            <div className="flex items-center gap-4 mt-2">
+                              {order.status === 'PENDIENTE' ? (
+                                <button 
+                                  onClick={() => setOrders(orders.map(o => o.id === order.id ? {...o, status: 'EN_CAMINO'} : o))}
+                                  className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
+                                >
+                                  Iniciar Ruta <ChevronRight size={16} />
+                                </button>
+                              ) : (
+                                <button 
+                                  onClick={() => {
+                                    setOrders(orders.map(o => o.id === order.id ? {...o, status: 'ENTREGADO'} : o));
+                                    setToast({ message: '¡Pedido entregado con éxito!', type: 'success' });
+                                  }}
+                                  className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
+                                >
+                                  Marcar Entregado <CheckCircle2 size={16} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Summary of items tiny */}
+                          <div className="bg-slate-50 px-5 py-3 border-t border-slate-100 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
+                            {order.items.map((it, idx) => (
+                              <span key={idx} className="text-[9px] font-bold text-slate-400 bg-white px-2 py-1 rounded-lg border border-slate-100">
+                                {it.quantity}x {it.product.name}
+                              </span>
                             ))}
-                          </tbody>
-                        </table>
-                      </div>
-                   </div>
-                </section>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* History Section */}
+                  <section className="pt-4 opacity-60">
+                    <header className="mb-4 flex items-center gap-2 px-2">
+                       <History size={14} className="text-slate-400" />
+                       <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Entregas del Día</h3>
+                    </header>
+
+                    <div className="space-y-3">
+                      {[...orders, ...HISTORIAL_DELIVERIES].filter(o => o.status === 'ENTREGADO').map((order, idx) => (
+                        <div key={idx} className="bg-white/50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center">
+                           <div className="flex items-center gap-3">
+                             <div className="w-8 h-8 bg-emerald-50 text-emerald-500 rounded-lg flex items-center justify-center">
+                               <CheckCircle2 size={16} />
+                             </div>
+                             <div>
+                               <p className="text-[11px] font-black text-slate-800 leading-none">{order.address}</p>
+                               <p className="text-[9px] text-slate-400 font-bold mt-1">Cobrado: ${order.total}</p>
+                             </div>
+                           </div>
+                           <p className="text-[9px] font-black text-slate-300 italic">{order.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
